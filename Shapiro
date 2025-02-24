@@ -1,0 +1,47 @@
+PrgmShapiroWilk
+    Request "Ingresa los datos separados por comas:", datos
+    L1 := expr("{" & datos & "}")
+    N := dim(L1)
+    
+    If N < 3 Then
+        Disp "Error: La muestra debe tener al menos 3 datos."
+        Return
+    EndIf
+
+    SortA(L1)  // Ordenar datos de menor a mayor
+    x̄ := mean(L1)  // Media de la muestra
+    S2 := sumSeq((L1[i] - x̄)^2, i, 1, N) / (N-1)  // Varianza muestral
+
+    Disp "Cantidad de datos (N): ", N
+    Disp "Media (x̄): ", x̄
+    Disp "Varianza muestral S²: ", S2
+
+    // Obtener coeficientes a_i de Shapiro-Wilk
+    A := newList(floor(N/2))
+    Msum := 0
+    For i, 1, floor(N/2)
+        mi := invNorm((i - 0.375) / (N + 0.25))  // Valores normales esperados
+        A[i] := mi
+        Msum := Msum + mi^2
+    EndFor
+
+    // Normalizar coeficientes a_i
+    For i, 1, floor(N/2)
+        A[i] := A[i] / sqrt(Msum)
+    EndFor
+
+    Disp "Coeficientes a_i:"
+    For i, 1, floor(N/2)
+        Disp "a_", i, ": ", A[i]
+    EndFor
+
+    // Calcular W
+    B := 0
+    For i, 1, floor(N/2)
+        B := B + A[i] * (L1[N-i+1] - L1[i])
+    EndFor
+    W := (B^2) / (S2 * (N-1))  // Usamos la varianza corregida
+
+    Disp "Sumatoria del numerador B: ", B
+    Disp "Coeficiente de Shapiro-Wilk (W): ", W
+EndPrgm
